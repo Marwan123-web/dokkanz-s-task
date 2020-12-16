@@ -43,10 +43,10 @@ exports.addNewCategory = async (req, res, next) => { //[]
 }
 
 exports.addCategoryProduct = async (req, res, next) => {
-    let categoryid = req.params.categoryid;
+    let categoryname = req.params.categoryname;
     const { code, name, price } = req.body
     let checkforProductCode = await Category.findOne({
-        _id: categoryid,
+        Name: categoryname,
     }, { Products: { $elemMatch: { code } } });
     if (checkforProductCode.Products.length > 0) {
         return res.status(400).json({
@@ -56,7 +56,7 @@ exports.addCategoryProduct = async (req, res, next) => {
         });
     }
     else {
-        appService.addProductToCategory(categoryid, code, name, price).then((product) => {
+        appService.addProductToCategory(categoryname, code, name, price).then((product) => {
             if (product) {
                 res.json({ msg: 'Product Added Successfuly' });
             } else {
@@ -70,9 +70,9 @@ exports.addCategoryProduct = async (req, res, next) => {
 }
 
 exports.deleteCategoryProduct = async (req, res, next) => { //[]
-    let categoryid = req.params.categoryid;
+    let categoryname = req.params.categoryname;
     let productcode = req.params.productcode;
-    appService.deleteProductFromCategory(categoryid, productcode).then((product) => {
+    appService.deleteProductFromCategory(categoryname, productcode).then((product) => {
         if (product) {
             res.json({ msg: 'Product Deleted Successfuly' });
         } else {
@@ -85,11 +85,11 @@ exports.deleteCategoryProduct = async (req, res, next) => { //[]
 }
 
 exports.updateCategoryProduct = async (req, res, next) => { //[]
-    let categoryid = req.params.categoryid;
+    let categoryname = req.params.categoryname;
     let productid = req.params.productid;
     const { code, name, price } = req.body
     let checkforProductCode = await Category.findOne({
-        _id: categoryid,
+        Name: categoryname,
     }, { Products: { $elemMatch: { code } } });
     if (checkforProductCode.Products.length > 0 && checkforProductCode.Products[0]._id != productid) {
         return res.status(400).json({
@@ -99,7 +99,7 @@ exports.updateCategoryProduct = async (req, res, next) => { //[]
         });
     }
     else {
-        appService.updateCategoryProduct(categoryid, productid, code, name, price).then((product) => {
+        appService.updateCategoryProduct(categoryname, productid, code, name, price).then((product) => {
             if (product) {
                 res.json({ msg: 'Product Updated Successfuly' });
             } else {
