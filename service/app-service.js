@@ -7,8 +7,8 @@ class appService {
         return Category.find()
     }
 
-    static getOneCategory(categoryid) {
-        return Category.findOne({ _id: categoryid })
+    static getOneCategory(categoryname) {
+        return Category.findOne({ Name: categoryname })
     }
 
     static async addProductToCategory(categoryid, code, name, price) {

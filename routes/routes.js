@@ -7,7 +7,7 @@ const appcontroller = require('../controllers/app-controller');
 
 router.get('/viewcategories', appcontroller.getAllCategories);
 
-router.get('/viewcategory/:categoryid', appcontroller.getOneCategory);
+router.get('/viewcategory/:categoryname', appcontroller.getOneCategory);
 
 router.post('/addcategory', appcontroller.addNewCategory);
 

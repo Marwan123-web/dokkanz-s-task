@@ -14,8 +14,8 @@ exports.getAllCategories = async (req, res, next) => { //[]
 }
 
 exports.getOneCategory = async (req, res, next) => { //[]
-    let categoryid = req.params.categoryid;
-    appService.getOneCategory(categoryid).then((data) => {
+    let categoryname = req.params.categoryname;
+    appService.getOneCategory(categoryname).then((data) => {
         if (data) {
             res.json(data);
         } else {
