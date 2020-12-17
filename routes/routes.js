@@ -11,11 +11,14 @@ router.get('/viewcategory/:categoryname', appcontroller.getOneCategory);
 
 router.post('/addcategory', appcontroller.addNewCategory);
 
-router.post('/addcategoryproduct/:categoryname', appcontroller.addCategoryProduct);
+router.post('/addsubcategory', appcontroller.addNewSubCategory);
 
-router.delete('/deletecategoryproduct/:categoryname/:productcode', appcontroller.deleteCategoryProduct);
 
-router.put('/updatecategoryproduct/:categoryname/:productid', appcontroller.updateCategoryProduct);
+router.post('/addsubcategoryproduct/:categoryname/:subcategoryname', appcontroller.addSubCategoryProduct);
+
+router.delete('/deletesubcategoryproduct/:categoryname/:subcategoryname/:productcode', appcontroller.deleteSubCategoryProduct);
+
+router.put('/updatesubcategoryproduct/:categoryname/:subcategoryname/:productid', appcontroller.updateSubCategoryProduct);
 
 
 

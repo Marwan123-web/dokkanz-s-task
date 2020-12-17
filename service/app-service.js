@@ -8,35 +8,43 @@ class appService {
     }
 
     static getOneCategory(categoryname) {
-        return Category.findOne({ Name: categoryname })
+        return Category.findOne({ CategoryName: categoryname })
+    }//done
+
+    static addNewSubCategory(CategoryName, SubCategoryName) {
+        var SubCategory = { Name: SubCategoryName };
+        return Category.findOne({ CategoryName }).updateOne(
+            {}, // your query, usually match by _id
+            { $push: { SubCategories: SubCategory } }, // item(s) to match from array you want to pull/remove
+            { multi: true } // set this to true if you want to remove multiple elements.
+        );
     }
 
-    static async addProductToCategory(categoryname, code, name, price) {
+    static async addProductToSubCategory(categoryname, subcategoryname, code, name, price) {
         var product = { code, name, price };
-        return Category.findOne({ Name: categoryname }).updateOne(
+        return Category.findOne({ CategoryName: categoryname, 'SubCategories.Name': subcategoryname }).updateOne(
             {}, // your query, usually match by _id
-            { $push: { Products: product } }, // item(s) to match from array you want to pull/remove
+            { $push: { "SubCategories.$.Products": product } }, // item(s) to match from array you want to pull/remove
             { multi: true } // set this to true if you want to remove multiple elements.
         );
     }
 
-    static async deleteProductFromCategory(categoryname, productcode) {
+    static async deleteProductFromSubCategory(categoryname, subcategoryname, productcode) {
         var product = { code: productcode };
-        return Category.findOne({ Name: categoryname }).updateOne(
+        return Category.findOne({ CategoryName: categoryname, 'SubCategories.Name': subcategoryname }).updateOne(
             {}, // your query, usually match by _id
-            { $pull: { Products: product } }, // item(s) to match from array you want to pull/remove
+            { $pull: { "SubCategories.$.Products": product } }, // item(s) to match from array you want to pull/remove
             { multi: true } // set this to true if you want to remove multiple elements.
         );
     }
 
-    static async updateCategoryProduct(categoryname, productid, code, name, price) {
+    static async updateSubCategoryProduct(categoryname, subcategoryname, productid, name, price) {
         return Category.updateOne(
-            { Name: categoryname, 'Products._id': productid },
+            { CategoryName: categoryname, 'SubCategories.Name': subcategoryname, 'SubCategories.Products._id': productid },
             {
                 $set: {
-                    "Products.$.code": code,
-                    "Products.$.name": name,
-                    "Products.$.price": price
+                    "SubCategories.0.Products.$.name": name,
+                    "SubCategories.0.Products.$.price": price
                 }
             }
         )

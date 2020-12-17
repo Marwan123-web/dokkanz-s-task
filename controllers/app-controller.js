@@ -11,7 +11,24 @@ exports.getAllCategories = async (req, res, next) => { //[]
     }).catch(err => {
         res.status(500).json({ msg: 'Internal Server Error' });
     })
-}
+}//done
+
+exports.addNewCategory = async (req, res, next) => { //[]
+    try {
+        const { CategoryName } = req.body
+        const checkName = await Category.findOne({ CategoryName });
+        if (checkName) {
+            res.status(400).json({ msg: 'This Name Of Category Has Been Added Before' });
+        } else {
+            const newCategory = new Category({ CategoryName });
+            await newCategory.save();
+            res.status(200).json({ msg: 'Category Added Successfuly' });
+        }
+    } catch (error) {
+        next(error)
+    }
+}//done
+
 
 exports.getOneCategory = async (req, res, next) => { //[]
     let categoryname = req.params.categoryname;
@@ -24,31 +41,39 @@ exports.getOneCategory = async (req, res, next) => { //[]
     }).catch(err => {
         res.status(500).json({ msg: 'Internal Server Error' });
     })
-}
+}//done
 
-exports.addNewCategory = async (req, res, next) => { //[]
+exports.addNewSubCategory = async (req, res, next) => { //[]
     try {
-        const { Name, Description } = req.body
-        const checkName = await Category.findOne({ Name });
+        const { CategoryName, SubCategoryName } = req.body
+        const checkName = await Category.findOne({ CategoryName, 'SubCategories.Name': SubCategoryName });
         if (checkName) {
-            res.status(400).json({ msg: 'This Name Of Category Has Been Added Before' });
+            res.status(400).json({ msg: 'This Name Of Sub Category Has Been Added Before' });
         } else {
-            const newCategory = new Category({ Name, Description });
-            await newCategory.save();
-            res.status(200).json({ msg: 'Category Added Successfuly' });
+            appService.addNewSubCategory(CategoryName, SubCategoryName).then((subCategory) => {
+                if (subCategory) {
+                    res.json({ msg: 'Sub-Category Added Successfuly' });
+                } else {
+                    res.status(404).json({ msg: 'Something Was Wrong' });
+                }
+            }).catch(err => {
+                res.status(500).json({ msg: 'Internal Server Error' });
+            })
         }
     } catch (error) {
         next(error)
-    }
+    }//done
 }
 
-exports.addCategoryProduct = async (req, res, next) => {
+exports.addSubCategoryProduct = async (req, res, next) => {
     let categoryname = req.params.categoryname;
+    let subcategoryname = req.params.subcategoryname;
+
     const { code, name, price } = req.body
     let checkforProductCode = await Category.findOne({
-        Name: categoryname,
-    }, { Products: { $elemMatch: { code } } });
-    if (checkforProductCode.Products.length > 0) {
+        CategoryName: categoryname, 'SubCategories.Name': subcategoryname, 'SubCategories.Products.code': code
+    }, {});
+    if (checkforProductCode != null) {
         return res.status(400).json({
             icon: '&#xE5CD;',
             style: 'error',
@@ -56,7 +81,7 @@ exports.addCategoryProduct = async (req, res, next) => {
         });
     }
     else {
-        appService.addProductToCategory(categoryname, code, name, price).then((product) => {
+        appService.addProductToSubCategory(categoryname, subcategoryname, code, name, price).then((product) => {
             if (product) {
                 res.json({ msg: 'Product Added Successfuly' });
             } else {
@@ -69,10 +94,11 @@ exports.addCategoryProduct = async (req, res, next) => {
 
 }
 
-exports.deleteCategoryProduct = async (req, res, next) => { //[]
+exports.deleteSubCategoryProduct = async (req, res, next) => { //[]
     let categoryname = req.params.categoryname;
+    let subcategoryname = req.params.subcategoryname;
     let productcode = req.params.productcode;
-    appService.deleteProductFromCategory(categoryname, productcode).then((product) => {
+    appService.deleteProductFromSubCategory(categoryname, subcategoryname, productcode).then((product) => {
         if (product) {
             res.json({ msg: 'Product Deleted Successfuly' });
         } else {
@@ -84,31 +110,19 @@ exports.deleteCategoryProduct = async (req, res, next) => { //[]
 
 }
 
-exports.updateCategoryProduct = async (req, res, next) => { //[]
+exports.updateSubCategoryProduct = async (req, res, next) => { //[]
     let categoryname = req.params.categoryname;
+    let subcategoryname = req.params.subcategoryname;
     let productid = req.params.productid;
-    const { code, name, price } = req.body
-    let checkforProductCode = await Category.findOne({
-        Name: categoryname,
-    }, { Products: { $elemMatch: { code } } });
-    if (checkforProductCode.Products.length > 0 && checkforProductCode.Products[0]._id != productid) {
-        return res.status(400).json({
-            icon: '&#xE5CD;',
-            style: 'error',
-            msg: "This Product Code Was Used Before"
-        });
-    }
-    else {
-        appService.updateCategoryProduct(categoryname, productid, code, name, price).then((product) => {
-            if (product) {
-                res.json({ msg: 'Product Updated Successfuly' });
-            } else {
-                res.status(404).json({ msg: 'Something Was Wrong' });
-            }
-        }).catch(err => {
-            res.status(500).json({ msg: 'Internal Server Error' });
-        })
-    }
-
+    const { name, price } = req.body
+    appService.updateSubCategoryProduct(categoryname, subcategoryname, productid, name, price).then((product) => {
+        if (product) {
+            res.json({ msg: 'Product Updated Successfuly' });
+        } else {
+            res.status(404).json({ msg: 'Something Was Wrong' });
+        }
+    }).catch(err => {
+        res.status(500).json({ msg: 'Internal Server Error' });
+    })
 
 }
